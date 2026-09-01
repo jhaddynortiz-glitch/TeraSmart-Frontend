@@ -1,0 +1,69 @@
+import React from 'react';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { PublicLayout } from '../layouts/PublicLayout';
+import { VendorLayout } from '../layouts/VendorLayout';
+import { AdminLayout } from '../layouts/AdminLayout';
+
+import { HomePage } from '../pages/user/HomePage';
+import { LoginPage } from '../pages/user/LoginPage';
+import { RegisterPage } from '../pages/user/RegisterPage';
+import { ProductDetailPage } from '../pages/user/ProductDetailPage';
+import { CartPage } from '../pages/user/CartPage';
+import { CheckoutPage } from '../pages/user/CheckoutPage';
+
+import { VendorDashboardPage } from '../pages/vendor/VendorDashboardPage';
+import { VendorOrdersPage } from '../pages/vendor/VendorOrdersPage';
+import { VendorProductsPage } from '../pages/vendor/VendorProductsPage';
+import { VendorTransfersPage } from '../pages/vendor/VendorTransfersPage';
+
+import { AdminDashboardPage } from '../pages/admin/AdminDashboardPage';
+import { AdminTransfersPage } from '../pages/admin/AdminTransfersPage';
+import { AdminProductsPage } from '../pages/admin/AdminProductsPage';
+import { AdminCategoriesPage } from '../pages/admin/AdminCategoriesPage';
+import { AdminPaymentMethodsPage } from '../pages/admin/AdminPaymentMethodsPage';
+import { AdminCartsPage } from '../pages/admin/AdminCartsPage';
+import { AdminUsersPage } from '../pages/admin/AdminUsersPage';
+import { AdminVendorsPage } from '../pages/admin/AdminVendorsPage';
+
+const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <PublicLayout />,
+    children: [
+      { index: true, element: <HomePage /> },
+      { path: 'login', element: <LoginPage /> },
+      { path: 'register', element: <RegisterPage /> },
+      { path: 'products/:id', element: <ProductDetailPage /> },
+      { path: 'cart', element: <CartPage /> },
+      { path: 'checkout', element: <CheckoutPage /> },
+    ]
+  },
+  {
+    path: '/vendor',
+    element: <VendorLayout />,
+    children: [
+      { index: true, element: <VendorDashboardPage /> },
+      { path: 'orders', element: <VendorOrdersPage /> },
+      { path: 'products', element: <VendorProductsPage /> },
+      { path: 'transfers', element: <VendorTransfersPage /> },
+    ]
+  },
+  {
+    path: '/admin',
+    element: <AdminLayout />,
+    children: [
+      { index: true, element: <AdminDashboardPage /> },
+      { path: 'transfers', element: <AdminTransfersPage /> },
+      { path: 'products', element: <AdminProductsPage /> },
+      { path: 'categories', element: <AdminCategoriesPage /> },
+      { path: 'payment-methods', element: <AdminPaymentMethodsPage /> },
+      { path: 'carts', element: <AdminCartsPage /> },
+      { path: 'users', element: <AdminUsersPage /> },
+      { path: 'vendors', element: <AdminVendorsPage /> },
+    ]
+  }
+]);
+
+export const AppRouter: React.FC = () => {
+  return <RouterProvider router={router} />;
+};
