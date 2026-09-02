@@ -68,25 +68,27 @@ export const HomePage: React.FC = () => {
         </div>
       </div>
 
-      {/* Barra de Filtros y Búsqueda */}
-      <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 shadow-sm space-y-4">
-        <form onSubmit={handleSearchSubmit} className="flex flex-col md:flex-row gap-3">
-          <div className="relative flex-1">
-            <FontAwesomeIcon icon={faSearch} className="absolute left-4 top-3.5 text-slate-400" />
+      {/* Barra de Filtros y Búsqueda 100% Responsive */}
+      <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 sm:p-5 shadow-sm">
+        <form onSubmit={handleSearchSubmit} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3">
+          {/* Buscador de Texto */}
+          <div className="relative sm:col-span-2 lg:col-span-5">
+            <FontAwesomeIcon icon={faSearch} className="absolute left-4 top-3.5 text-slate-400 text-sm" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Buscar por nombre de producto, SKU o código de barras..."
-              className="w-full pl-11 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-sky-500 outline-none text-sm dark:text-white"
+              placeholder="Buscar por nombre, SKU o código de barras..."
+              className="w-full pl-11 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-sky-500 outline-none text-sm dark:text-white transition-all"
             />
           </div>
 
-          <div className="flex gap-2">
+          {/* Select de Categorías */}
+          <div className="sm:col-span-1 lg:col-span-3">
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-sky-500 outline-none text-sm dark:text-white font-medium"
+              className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-sky-500 outline-none text-sm dark:text-white font-medium"
             >
               <option value="">Todas las Categorías</option>
               {categories.map((cat) => (
@@ -95,11 +97,14 @@ export const HomePage: React.FC = () => {
                 </option>
               ))}
             </select>
+          </div>
 
+          {/* Select de Marcas */}
+          <div className="sm:col-span-1 lg:col-span-2">
             <select
               value={selectedBrand}
               onChange={(e) => setSelectedBrand(e.target.value)}
-              className="px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-sky-500 outline-none text-sm dark:text-white font-medium"
+              className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-sky-500 outline-none text-sm dark:text-white font-medium"
             >
               <option value="">Todas las Marcas</option>
               {brands.map((brand) => (
@@ -108,10 +113,13 @@ export const HomePage: React.FC = () => {
                 </option>
               ))}
             </select>
+          </div>
 
+          {/* Botón Filtrar */}
+          <div className="sm:col-span-2 lg:col-span-2">
             <button
               type="submit"
-              className="px-5 py-2.5 bg-sky-600 hover:bg-sky-500 text-white font-semibold rounded-xl text-sm transition-colors flex items-center gap-2 shadow-sm"
+              className="w-full py-2.5 px-5 bg-sky-600 hover:bg-sky-500 text-white font-semibold rounded-xl text-sm transition-colors flex items-center justify-center gap-2 shadow-sm"
             >
               <FontAwesomeIcon icon={faFilter} />
               <span>Filtrar</span>
