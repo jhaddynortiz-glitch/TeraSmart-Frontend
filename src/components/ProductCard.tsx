@@ -79,13 +79,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
           {/* Acciones */}
           <div className="grid grid-cols-2 gap-2">
-            <Link
+            {/* <Link
               to={`/products/${product.id}`}
               className="w-full py-2 px-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-white text-xs font-bold rounded-xl transition-colors flex items-center justify-center gap-1.5"
             >
               <FontAwesomeIcon icon={faEye} />
               <span>Ver Detalle</span>
-            </Link>
+            </Link> */}
 
             <Link
               to={`/products/${product.id}`}

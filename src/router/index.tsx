@@ -19,6 +19,7 @@ import { VendorTransfersPage } from '../pages/vendor/VendorTransfersPage';
 import { AdminDashboardPage } from '../pages/admin/AdminDashboardPage';
 import { AdminTransfersPage } from '../pages/admin/AdminTransfersPage';
 import { AdminProductsPage } from '../pages/admin/AdminProductsPage';
+import { AdminProductFormPage } from '../pages/admin/AdminProductFormPage';
 import { AdminCategoriesPage } from '../pages/admin/AdminCategoriesPage';
 import { AdminPaymentMethodsPage } from '../pages/admin/AdminPaymentMethodsPage';
 import { AdminCartsPage } from '../pages/admin/AdminCartsPage';
@@ -55,6 +56,8 @@ const router = createBrowserRouter([
       { index: true, element: <AdminDashboardPage /> },
       { path: 'transfers', element: <AdminTransfersPage /> },
       { path: 'products', element: <AdminProductsPage /> },
+      { path: 'products/new', element: <AdminProductFormPage /> },
+      { path: 'products/edit/:id', element: <AdminProductFormPage /> },
       { path: 'categories', element: <AdminCategoriesPage /> },
       { path: 'payment-methods', element: <AdminPaymentMethodsPage /> },
       { path: 'carts', element: <AdminCartsPage /> },

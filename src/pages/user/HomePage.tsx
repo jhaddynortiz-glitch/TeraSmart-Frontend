@@ -54,7 +54,7 @@ export const HomePage: React.FC = () => {
   return (
     <div className="space-y-8">
       {/* Banner / Encabezado Principal */}
-      <div className="bg-gradient-to-r from-sky-600 via-indigo-600 to-slate-900 rounded-3xl p-8 sm:p-10 text-white shadow-xl">
+      {/* <div className="bg-gradient-to-r from-sky-600 via-indigo-600 to-slate-900 rounded-3xl p-8 sm:p-10 text-white shadow-xl">
         <div className="max-w-2xl">
           <span className="inline-block px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-xs font-semibold uppercase tracking-wider mb-3">
             Plataforma E-Commerce Multivendedor
@@ -66,7 +66,7 @@ export const HomePage: React.FC = () => {
             Explora nuestros productos tecnológicos y para el hogar con garantía oficial, múltiples sucursales y opciones de pago seguro.
           </p>
         </div>
-      </div>
+      </div> */}
 
       {/* Barra de Filtros y Búsqueda 100% Responsive */}
       <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 sm:p-5 shadow-sm">

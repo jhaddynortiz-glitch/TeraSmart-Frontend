@@ -59,6 +59,16 @@ export const productService = {
     return data;
   },
 
+  async updateProduct(id: string, productData: Partial<Product>): Promise<Product> {
+    const { data } = await apiClient.put<{ message: string; product: Product }>(`/products/${id}`, productData);
+    return data.product || (data as any);
+  },
+
+  async deleteProduct(id: string): Promise<{ message: string }> {
+    const { data } = await apiClient.delete<{ message: string }>(`/products/${id}`);
+    return data;
+  },
+
   async addVariant(productId: string, variantData: Partial<ProductVariant>): Promise<ProductVariant> {
     const { data } = await apiClient.post<ProductVariant>(`/products/${productId}/variants`, variantData);
     return data;
