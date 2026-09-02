@@ -34,7 +34,7 @@ export const Navbar: React.FC = () => {
             <span>Carrito</span>
           </Link>
           
-          {(user?.role === 'VENDEDOR' || user?.role === 'SUPERADMIN') && (
+         {/*  {(user?.role === 'VENDEDOR' || user?.role === 'SUPERADMIN') && (
             <Link to="/vendor" className="text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/30 text-xs font-bold border border-amber-500/40 px-2.5 py-1 rounded-md flex items-center gap-1">
               <FontAwesomeIcon icon={faGauge} />
               <span>Panel Vendedor</span>
@@ -46,7 +46,7 @@ export const Navbar: React.FC = () => {
               <FontAwesomeIcon icon={faUserShield} />
               <span>SuperAdmin</span>
             </Link>
-          )}
+          )} */}
 
           {/* Toggle Modo Claro / Oscuro */}
           <button
