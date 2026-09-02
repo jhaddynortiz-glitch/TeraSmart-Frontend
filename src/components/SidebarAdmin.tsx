@@ -1,11 +1,19 @@
 import React from 'react';
-import { NavLink, Link } from 'react-router-dom';
+import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGauge, faRightLeft, faBoxArchive, faTags, faCreditCard, faCartShopping, faUsers, faStore, faArrowLeft, faSun, faMoon } from '@fortawesome/free-solid-svg-icons';
+import { faGauge, faRightLeft, faBoxArchive, faTags, faCreditCard, faCartShopping, faUsers, faStore, faArrowLeft, faSun, faMoon, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 import { useTheme } from '../context/ThemeContext';
+import { useAuth } from '../context/AuthContext';
 
 export const SidebarAdmin: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   return (
     <aside className="w-64 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 min-h-screen p-4 flex flex-col transition-colors duration-200">
@@ -24,6 +32,7 @@ export const SidebarAdmin: React.FC = () => {
           <FontAwesomeIcon icon={theme === 'dark' ? faSun : faMoon} />
         </button>
       </div>
+      
       <nav className="space-y-1.5 flex-1">
         <NavLink to="/admin" end className={({ isActive }) => `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium ${isActive ? 'bg-emerald-50 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-500/40' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'}`}>
           <FontAwesomeIcon icon={faGauge} /> Dashboard
@@ -50,6 +59,23 @@ export const SidebarAdmin: React.FC = () => {
           <FontAwesomeIcon icon={faStore} /> Vendedores
         </NavLink>
       </nav>
+
+      {/* Boton Cerrar Sesión abajo */}
+      <div className="pt-4 mt-auto border-t border-slate-200 dark:border-slate-700">
+        {user && (
+          <div className="mb-3 px-1">
+            <p className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">{user.name}</p>
+            <p className="text-[10px] text-slate-500 dark:text-slate-400 font-mono uppercase">{user.role}</p>
+          </div>
+        )}
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-semibold rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-600 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-900/50 transition-colors"
+        >
+          <FontAwesomeIcon icon={faSignOutAlt} />
+          <span>Cerrar Sesión</span>
+        </button>
+      </div>
     </aside>
   );
 };
