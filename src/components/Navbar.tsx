@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faShoppingCart, faStore, faUserShield, faSignInAlt, faUserPlus, faSun, faMoon, faSignOutAlt, faUserCheck } from '@fortawesome/free-solid-svg-icons';
+import { faShoppingCart, faStore, faUserShield, faSignInAlt, faUserPlus, faSun, faMoon, faSignOutAlt, faUserCheck, faBars, faXmark, faGauge } from '@fortawesome/free-solid-svg-icons';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 
@@ -9,20 +9,25 @@ export const Navbar: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
   const { user, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
+    setMobileMenuOpen(false);
     navigate('/login');
   };
 
   return (
     <header className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-50 transition-colors duration-200 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        {/* Brand Logo */}
         <Link to="/" className="flex items-center gap-2 text-xl font-bold text-sky-600 dark:text-sky-400 hover:opacity-90">
           <FontAwesomeIcon icon={faStore} className="text-2xl" />
           <span className="tracking-tight font-extrabold">TeraSmart</span>
         </Link>
-        <nav className="flex items-center space-x-5">
+
+        {/* NAVEGACIÓN DESKTOP (pantallas medianas y grandes) */}
+        <nav className="hidden md:flex items-center space-x-5">
           <Link to="/" className="text-slate-700 dark:text-slate-300 hover:text-sky-600 dark:hover:text-white font-medium text-sm">Catálogo</Link>
           <Link to="/cart" className="text-slate-700 dark:text-slate-300 hover:text-sky-600 dark:hover:text-sky-400 font-medium text-sm flex items-center gap-1.5">
             <FontAwesomeIcon icon={faShoppingCart} />
@@ -30,8 +35,9 @@ export const Navbar: React.FC = () => {
           </Link>
           
           {(user?.role === 'VENDEDOR' || user?.role === 'SUPERADMIN') && (
-            <Link to="/vendor" className="text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/30 text-xs font-bold border border-amber-500/40 px-2.5 py-1 rounded-md">
-              Panel Vendedor
+            <Link to="/vendor" className="text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/30 text-xs font-bold border border-amber-500/40 px-2.5 py-1 rounded-md flex items-center gap-1">
+              <FontAwesomeIcon icon={faGauge} />
+              <span>Panel Vendedor</span>
             </Link>
           )}
 
@@ -42,7 +48,7 @@ export const Navbar: React.FC = () => {
             </Link>
           )}
 
-          {/* Boton Toggle Light/Dark Mode */}
+          {/* Toggle Modo Claro / Oscuro */}
           <button
             onClick={toggleTheme}
             className="p-2 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-amber-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
@@ -66,7 +72,6 @@ export const Navbar: React.FC = () => {
                 <button
                   onClick={handleLogout}
                   className="text-xs font-semibold bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-600 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-900/50 px-2.5 py-1.5 rounded-lg flex items-center gap-1 transition-colors"
-                  title="Cerrar Sesión"
                 >
                   <FontAwesomeIcon icon={faSignOutAlt} />
                   <span>Salir</span>
@@ -86,7 +91,106 @@ export const Navbar: React.FC = () => {
             )}
           </div>
         </nav>
+
+        {/* BOTÓN MÓVIL HAMBURGUESA (< 768px) */}
+        <div className="flex items-center gap-2 md:hidden">
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-amber-300"
+          >
+            <FontAwesomeIcon icon={theme === 'dark' ? faSun : faMoon} />
+          </button>
+
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="p-2 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-xl"
+            aria-label="Abrir Menú"
+          >
+            <FontAwesomeIcon icon={mobileMenuOpen ? faXmark : faBars} />
+          </button>
+        </div>
       </div>
+
+      {/* MENÚ DESPLEGABLE MÓVIL */}
+      {mobileMenuOpen && (
+        <div className="md:hidden border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 pt-3 pb-5 space-y-3">
+          <Link
+            to="/"
+            onClick={() => setMobileMenuOpen(false)}
+            className="block px-3 py-2 rounded-lg text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700"
+          >
+            Catálogo de Productos
+          </Link>
+
+          <Link
+            to="/cart"
+            onClick={() => setMobileMenuOpen(false)}
+            className="flex items-center gap-2 px-3 py-2 rounded-lg text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700"
+          >
+            <FontAwesomeIcon icon={faShoppingCart} />
+            <span>Carrito de Compras</span>
+          </Link>
+
+          {(user?.role === 'VENDEDOR' || user?.role === 'SUPERADMIN') && (
+            <Link
+              to="/vendor"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center gap-2 px-3 py-2 rounded-lg text-base font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40"
+            >
+              <FontAwesomeIcon icon={faGauge} />
+              <span>Módulo Vendedor</span>
+            </Link>
+          )}
+
+          {user?.role === 'SUPERADMIN' && (
+            <Link
+              to="/admin"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center gap-2 px-3 py-2 rounded-lg text-base font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40"
+            >
+              <FontAwesomeIcon icon={faUserShield} />
+              <span>Módulo SuperAdmin</span>
+            </Link>
+          )}
+
+          <div className="pt-3 border-t border-slate-200 dark:border-slate-700">
+            {isAuthenticated && user ? (
+              <div className="space-y-3">
+                <div className="px-3">
+                  <p className="font-bold text-sm text-slate-900 dark:text-white">{user.name}</p>
+                  <p className="text-xs text-slate-500 font-mono">{user.email} ({user.role})</p>
+                </div>
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-300 font-semibold text-sm border border-rose-200 dark:border-rose-800"
+                >
+                  <FontAwesomeIcon icon={faSignOutAlt} />
+                  <span>Cerrar Sesión</span>
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-2">
+                <Link
+                  to="/login"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center justify-center gap-1.5 py-2.5 bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-white font-semibold rounded-xl text-sm"
+                >
+                  <FontAwesomeIcon icon={faSignInAlt} />
+                  <span>Login</span>
+                </Link>
+                <Link
+                  to="/register"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center justify-center gap-1.5 py-2.5 bg-sky-600 text-white font-semibold rounded-xl text-sm"
+                >
+                  <FontAwesomeIcon icon={faUserPlus} />
+                  <span>Registro</span>
+                </Link>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </header>
   );
 };

@@ -5,21 +5,30 @@ import { faGauge, faReceipt, faBoxesPacking, faRightLeft, faArrowLeft, faSun, fa
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 
-export const SidebarVendor: React.FC = () => {
+interface SidebarVendorProps {
+  onCloseMobile?: () => void;
+}
+
+export const SidebarVendor: React.FC<SidebarVendorProps> = ({ onCloseMobile }) => {
   const { theme, toggleTheme } = useTheme();
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
     logout();
+    if (onCloseMobile) onCloseMobile();
     navigate('/login');
   };
 
+  const handleNavClick = () => {
+    if (onCloseMobile) onCloseMobile();
+  };
+
   return (
-    <aside className="w-64 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 min-h-screen p-4 flex flex-col transition-colors duration-200">
+    <aside className="w-64 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 h-full min-h-screen p-4 flex flex-col transition-colors duration-200 shadow-xl md:shadow-none">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <Link to="/" className="text-xs text-sky-600 dark:text-sky-400 hover:underline flex items-center gap-1 mb-1">
+          <Link to="/" onClick={handleNavClick} className="text-xs text-sky-600 dark:text-sky-400 hover:underline flex items-center gap-1 mb-1">
             <FontAwesomeIcon icon={faArrowLeft} /> Volver a Tienda
           </Link>
           <h2 className="text-lg font-bold text-amber-600 dark:text-amber-400">Módulo Vendedor</h2>
@@ -34,16 +43,16 @@ export const SidebarVendor: React.FC = () => {
       </div>
 
       <nav className="space-y-2 flex-1">
-        <NavLink to="/vendor" end className={({ isActive }) => `flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-sm ${isActive ? 'bg-amber-50 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-500/40' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'}`}>
+        <NavLink to="/vendor" end onClick={handleNavClick} className={({ isActive }) => `flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-sm ${isActive ? 'bg-amber-50 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-500/40' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'}`}>
           <FontAwesomeIcon icon={faGauge} /> Dashboard
         </NavLink>
-        <NavLink to="/vendor/orders" className={({ isActive }) => `flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-sm ${isActive ? 'bg-amber-50 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-500/40' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'}`}>
+        <NavLink to="/vendor/orders" onClick={handleNavClick} className={({ isActive }) => `flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-sm ${isActive ? 'bg-amber-50 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-500/40' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'}`}>
           <FontAwesomeIcon icon={faReceipt} /> Órdenes
         </NavLink>
-        <NavLink to="/vendor/products" className={({ isActive }) => `flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-sm ${isActive ? 'bg-amber-50 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-500/40' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'}`}>
+        <NavLink to="/vendor/products" onClick={handleNavClick} className={({ isActive }) => `flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-sm ${isActive ? 'bg-amber-50 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-500/40' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'}`}>
           <FontAwesomeIcon icon={faBoxesPacking} /> Mis Productos
         </NavLink>
-        <NavLink to="/vendor/transfers" className={({ isActive }) => `flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-sm ${isActive ? 'bg-amber-50 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-500/40' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'}`}>
+        <NavLink to="/vendor/transfers" onClick={handleNavClick} className={({ isActive }) => `flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-sm ${isActive ? 'bg-amber-50 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-500/40' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'}`}>
           <FontAwesomeIcon icon={faRightLeft} /> Transferencias Almacén
         </NavLink>
       </nav>
