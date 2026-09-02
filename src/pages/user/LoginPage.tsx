@@ -117,7 +117,7 @@ export const LoginPage: React.FC = () => {
         </form>
 
         {/* Accesos Rápidos de Prueba en 1 Clic */}
-        <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-700">
+        {/* <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-700">
           <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider text-center mb-3">
             Acceso Rápido para Pruebas
           </p>
@@ -141,7 +141,7 @@ export const LoginPage: React.FC = () => {
               <FontAwesomeIcon icon={faUser} /> Cliente
             </button>
           </div>
-        </div>
+        </div> */}
 
         <p className="mt-6 text-center text-sm text-slate-600 dark:text-slate-400">
           ¿No tienes una cuenta?{' '}
