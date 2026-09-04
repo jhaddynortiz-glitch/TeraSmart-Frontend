@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGauge, faRightLeft, faBoxArchive, faTags, faCreditCard, faCartShopping, faUsers, faStore, faArrowLeft, faSun, faMoon, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
+import { faGauge, faRightLeft, faBoxArchive, faTags, faCreditCard, faCartShopping, faUsers, faStore, faArrowLeft, faSun, faMoon, faSignOutAlt, faReceipt } from '@fortawesome/free-solid-svg-icons';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 
@@ -28,7 +28,7 @@ export const SidebarAdmin: React.FC<SidebarAdminProps> = ({ onCloseMobile }) => 
     <aside className="w-64 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 h-full min-h-screen p-4 flex flex-col transition-colors duration-200 shadow-xl md:shadow-none">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <Link to="/" onClick={handleNavClick} className="text-xs text-sky-600 dark:text-sky-400 hover:underline flex items-center gap-1 mb-1">
+          <Link to="/" onClick={handleNavClick} className="text-xs text-sky-600 dark:text-sky-400 hover:underline flex items-center gap-1 mb-1 font-semibold">
             <FontAwesomeIcon icon={faArrowLeft} /> Volver a Tienda
           </Link>
           <h2 className="text-lg font-bold text-emerald-600 dark:text-emerald-400">Módulo Admin</h2>
@@ -45,6 +45,9 @@ export const SidebarAdmin: React.FC<SidebarAdminProps> = ({ onCloseMobile }) => 
       <nav className="space-y-1.5 flex-1">
         <NavLink to="/admin" end onClick={handleNavClick} className={({ isActive }) => `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium ${isActive ? 'bg-emerald-50 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-500/40' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'}`}>
           <FontAwesomeIcon icon={faGauge} /> Dashboard
+        </NavLink>
+        <NavLink to="/admin/orders" onClick={handleNavClick} className={({ isActive }) => `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium ${isActive ? 'bg-emerald-50 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-500/40' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'}`}>
+          <FontAwesomeIcon icon={faReceipt} /> Órdenes de Venta
         </NavLink>
         <NavLink to="/admin/transfers" onClick={handleNavClick} className={({ isActive }) => `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium ${isActive ? 'bg-emerald-50 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-500/40' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'}`}>
           <FontAwesomeIcon icon={faRightLeft} /> Gestión de Almacenes

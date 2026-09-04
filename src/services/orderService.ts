@@ -14,8 +14,10 @@ export interface CheckoutRequest {
 
 export interface Order {
   id: string;
-  totalAmount: number;
-  status: string;
+  totalAmount?: number;
+  total?: number;
+  status?: string;
+  shippingStatus?: string;
   paymentMethod: string;
   createdAt: string;
   items?: any[];

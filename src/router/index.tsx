@@ -18,6 +18,7 @@ import { VendorOrdersPage } from '../pages/vendor/VendorOrdersPage';
 import { VendorProductsPage } from '../pages/vendor/VendorProductsPage';
 
 import { AdminDashboardPage } from '../pages/admin/AdminDashboardPage';
+import { AdminOrdersPage } from '../pages/admin/AdminOrdersPage';
 import { AdminTransfersPage } from '../pages/admin/AdminTransfersPage';
 import { AdminProductsPage } from '../pages/admin/AdminProductsPage';
 import { AdminProductFormPage } from '../pages/admin/AdminProductFormPage';
@@ -57,6 +58,7 @@ const router = createBrowserRouter([
     element: <ProtectedRoute allowedRoles={['SUPERADMIN']}><AdminLayout /></ProtectedRoute>,
     children: [
       { index: true, element: <AdminDashboardPage /> },
+      { path: 'orders', element: <AdminOrdersPage /> },
       { path: 'transfers', element: <AdminTransfersPage /> },
       { path: 'products', element: <AdminProductsPage /> },
       { path: 'products/new', element: <AdminProductFormPage /> },
