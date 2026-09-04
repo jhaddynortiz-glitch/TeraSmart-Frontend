@@ -67,14 +67,19 @@ export const Navbar: React.FC = () => {
           <div className="flex items-center gap-3 pl-3 border-l border-slate-200 dark:border-slate-700">
             {isAuthenticated && user ? (
               <div className="flex items-center gap-3">
-                <div className="text-right">
+                <div className="text-right flex flex-col items-end">
                   <p className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1 justify-end">
                     <FontAwesomeIcon icon={faUserCheck} className="text-emerald-500 text-xs" />
                     <span>{user.name}</span>
                   </p>
-                  <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300 font-semibold">
-                    {user.role}
-                  </span>
+                  <div className="flex gap-2 mt-1">
+                    <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300 font-semibold">
+                      {user.role}
+                    </span>
+                    <Link to="/orders" className="text-[10px] font-bold text-sky-600 bg-sky-50 dark:bg-sky-900/40 border border-sky-200 dark:border-sky-800 px-1.5 py-0.5 rounded hover:bg-sky-100 dark:hover:bg-sky-900 transition-colors">
+                      Mis Pedidos
+                    </Link>
+                  </div>
                 </div>
                 <button
                   onClick={handleLogout}
@@ -170,9 +175,14 @@ export const Navbar: React.FC = () => {
           <div className="pt-3 border-t border-slate-200 dark:border-slate-700">
             {isAuthenticated && user ? (
               <div className="space-y-3">
-                <div className="px-3">
-                  <p className="font-bold text-sm text-slate-900 dark:text-white">{user.name}</p>
-                  <p className="text-xs text-slate-500 font-mono">{user.email} ({user.role})</p>
+                <div className="px-3 flex justify-between items-center">
+                  <div>
+                    <p className="font-bold text-sm text-slate-900 dark:text-white">{user.name}</p>
+                    <p className="text-xs text-slate-500 font-mono">{user.email} ({user.role})</p>
+                  </div>
+                  <Link to="/orders" onClick={() => setMobileMenuOpen(false)} className="text-xs font-bold text-sky-600 dark:text-sky-400 bg-sky-50 dark:bg-sky-900/40 border border-sky-200 dark:border-sky-800 px-3 py-1.5 rounded-lg">
+                    Mis Pedidos
+                  </Link>
                 </div>
                 <button
                   onClick={handleLogout}

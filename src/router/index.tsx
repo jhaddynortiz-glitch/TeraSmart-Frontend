@@ -11,6 +11,7 @@ import { RegisterPage } from '../pages/user/RegisterPage';
 import { ProductDetailPage } from '../pages/user/ProductDetailPage';
 import { CartPage } from '../pages/user/CartPage';
 import { CheckoutPage } from '../pages/user/CheckoutPage';
+import { MyOrdersPage } from '../pages/user/MyOrdersPage';
 
 import { VendorDashboardPage } from '../pages/vendor/VendorDashboardPage';
 import { VendorOrdersPage } from '../pages/vendor/VendorOrdersPage';
@@ -37,6 +38,7 @@ const router = createBrowserRouter([
       { path: 'products/:id', element: <ProductDetailPage /> },
       { path: 'cart', element: <CartPage /> },
       { path: 'checkout', element: <ProtectedRoute><CheckoutPage /></ProtectedRoute> },
+      { path: 'orders', element: <ProtectedRoute><MyOrdersPage /></ProtectedRoute> },
     ]
   },
   {
