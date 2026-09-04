@@ -3,8 +3,9 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { productService } from '../../services/productService';
 import { categoryService, Category } from '../../services/categoryService';
 import { brandService, Brand } from '../../services/brandService';
+import { inventoryService, Warehouse } from '../../services/inventoryService';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faSave, faSpinner, faExclamationTriangle, faBoxArchive } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faSave, faSpinner, faExclamationTriangle, faBoxArchive, faWarehouse, faBoxesPacking } from '@fortawesome/free-solid-svg-icons';
 
 export const AdminProductFormPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -13,6 +14,7 @@ export const AdminProductFormPage: React.FC = () => {
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
+  const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
 
   const [name, setName] = useState('');
   const [sku, setSku] = useState('');
@@ -20,6 +22,8 @@ export const AdminProductFormPage: React.FC = () => {
   const [basePrice, setBasePrice] = useState<number | string>('');
   const [categoryId, setCategoryId] = useState('');
   const [brandId, setBrandId] = useState('');
+  const [warehouseId, setWarehouseId] = useState('');
+  const [initialStock, setInitialStock] = useState<number | string>(10);
   const [mainImageUrl, setMainImageUrl] = useState('');
   const [description, setDescription] = useState('');
 
@@ -30,14 +34,19 @@ export const AdminProductFormPage: React.FC = () => {
   useEffect(() => {
     const loadSelectOptions = async () => {
       try {
-        const [catData, brandData] = await Promise.all([
+        const [catData, brandData, whData] = await Promise.all([
           categoryService.getCategories(),
-          brandService.getBrands()
+          brandService.getBrands(),
+          inventoryService.getWarehouses()
         ]);
         setCategories(catData);
         setBrands(brandData);
+        setWarehouses(whData);
+        if (whData.length > 0) {
+          setWarehouseId(whData[0].id);
+        }
       } catch (err: any) {
-        console.error('Error al cargar categorías o marcas.');
+        console.error('Error al cargar datos de referencia.');
       }
     };
 
@@ -70,7 +79,7 @@ export const AdminProductFormPage: React.FC = () => {
     setError(null);
     setLoading(true);
 
-    const payload = {
+    const payload: any = {
       name,
       sku,
       barcode: barcode || undefined,
@@ -78,7 +87,9 @@ export const AdminProductFormPage: React.FC = () => {
       categoryId: categoryId || undefined,
       brandId: brandId || undefined,
       mainImageUrl: mainImageUrl || undefined,
-      description: description || undefined
+      description: description || undefined,
+      warehouseId: warehouseId || undefined,
+      initialStock: Number(initialStock)
     };
 
     try {
@@ -113,7 +124,7 @@ export const AdminProductFormPage: React.FC = () => {
         <p className="text-sm text-slate-500 dark:text-slate-400">
           {isEditMode
             ? 'Modifica los campos del producto seleccionado y guarda los cambios.'
-            : 'Completa el formulario para dar de alta un producto en el catálogo global.'}
+            : 'Completa el formulario para dar de alta un producto con su stock e inventario inicial.'}
         </p>
       </div>
 
@@ -214,7 +225,7 @@ export const AdminProductFormPage: React.FC = () => {
               </div>
 
               {/* Marca */}
-              <div>
+              <div className="sm:col-span-2">
                 <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
                   Marca Fabricante
                 </label>
@@ -231,6 +242,51 @@ export const AdminProductFormPage: React.FC = () => {
                   ))}
                 </select>
               </div>
+
+              {/* INVENTARIO Y STOCK INICIAL (SOLO EN REGISTRO NUEVO) */}
+              {!isEditMode && (
+                <div className="sm:col-span-2 bg-emerald-50/60 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/60 rounded-2xl p-4 space-y-3">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5">
+                    <FontAwesomeIcon icon={faBoxesPacking} />
+                    <span>Inventario & Stock Inicial</span>
+                  </h3>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                        Almacén de Destino *
+                      </label>
+                      <select
+                        value={warehouseId}
+                        onChange={(e) => setWarehouseId(e.target.value)}
+                        className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none text-xs dark:text-white font-medium"
+                        required
+                      >
+                        {warehouses.map((wh) => (
+                          <option key={wh.id} value={wh.id}>
+                            {wh.name} ({wh.city || 'Central'})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                        Stock Inicial (Unidades) *
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={initialStock}
+                        onChange={(e) => setInitialStock(e.target.value)}
+                        placeholder="Ej. 10"
+                        className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none text-xs dark:text-white font-bold"
+                        required
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* URL Imagen Principal */}
               <div className="sm:col-span-2">
@@ -283,7 +339,7 @@ export const AdminProductFormPage: React.FC = () => {
                 ) : (
                   <>
                     <FontAwesomeIcon icon={faSave} />
-                    <span>{isEditMode ? 'Actualizar Producto' : 'Guardar Producto'}</span>
+                    <span>{isEditMode ? 'Actualizar Producto' : 'Guardar Producto & Stock'}</span>
                   </>
                 )}
               </button>
