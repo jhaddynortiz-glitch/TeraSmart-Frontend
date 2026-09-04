@@ -1,29 +1,37 @@
 import React, { useEffect, useState } from 'react';
 import { apiClient } from '../../api/axios';
+import { productService, Product } from '../../services/productService';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faWarehouse, faRightLeft, faPlus, faSpinner, faBuilding, faStore, faUser, faMapMarkerAlt, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faWarehouse, faRightLeft, faPlus, faSpinner, faBuilding, faStore, faBoxesPacking, faChartPie, faSave, faCheckCircle, faExclamationTriangle, faTimes, faLayerGroup } from '@fortawesome/free-solid-svg-icons';
 
 export const AdminTransfersPage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'warehouses' | 'transfers'>('warehouses');
+  const [activeTab, setActiveTab] = useState<'warehouses' | 'distribution'>('warehouses');
   const [warehouses, setWarehouses] = useState<any[]>([]);
   const [vendors, setVendors] = useState<any[]>([]);
-  const [transfers, setTransfers] = useState<any[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Estados de Distribución de Stock
+  const [selectedProductId, setSelectedProductId] = useState<string>('');
+  const [allocations, setAllocations] = useState<{ [warehouseId: string]: number }>({});
+  const [savingDistribution, setSavingDistribution] = useState(false);
+  const [distributionSuccess, setDistributionSuccess] = useState<string | null>(null);
+
+  // Modal Crear Almacén
   const [createWhModal, setCreateWhModal] = useState(false);
-  const [name, setName] = useState('');
-  const [city, setCity] = useState('');
-  const [address, setAddress] = useState('');
+  const [whName, setWhName] = useState('');
+  const [whCity, setWhCity] = useState('');
+  const [whAddress, setWhAddress] = useState('');
   const [vendorId, setVendorId] = useState('');
   const [savingWh, setSavingWh] = useState(false);
 
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [whRes, usersRes, trRes] = await Promise.all([
+      const [whRes, usersRes, prodRes] = await Promise.all([
         apiClient.get('/inventory/warehouses'),
         apiClient.get('/admin/users').catch(() => ({ data: [] })),
-        apiClient.get('/inventory/transfers').catch(() => ({ data: [] }))
+        productService.getProducts()
       ]);
 
       setWarehouses(whRes.data);
@@ -32,9 +40,13 @@ export const AdminTransfersPage: React.FC = () => {
       if (vendorList.length > 0 && !vendorId) {
         setVendorId(vendorList[0].id);
       }
-      setTransfers(trRes.data || []);
+
+      setProducts(prodRes);
+      if (prodRes.length > 0 && !selectedProductId) {
+        setSelectedProductId(prodRes[0].id);
+      }
     } catch (err: any) {
-      console.error('Error al cargar datos de almacenes.');
+      console.error('Error al cargar datos del módulo.');
     } finally {
       setLoading(false);
     }
@@ -44,20 +56,63 @@ export const AdminTransfersPage: React.FC = () => {
     fetchData();
   }, []);
 
+  const selectedProduct = products.find((p) => p.id === selectedProductId);
+  const totalGeneralStock = selectedProduct ? (selectedProduct.stock !== undefined ? selectedProduct.stock : 10) : 0;
+  
+  const totalDistributedStock = Object.values(allocations).reduce((sum, val) => sum + (Number(val) || 0), 0);
+  const unassignedReserve = totalGeneralStock - totalDistributedStock;
+
+  const handleStockChange = (warehouseId: string, val: string) => {
+    const qty = parseInt(val) || 0;
+    setAllocations((prev) => ({
+      ...prev,
+      [warehouseId]: qty
+    }));
+  };
+
+  const handleSaveDistribution = async () => {
+    if (!selectedProductId) return;
+    if (totalDistributedStock > totalGeneralStock) {
+      alert(`⚠️ La suma asignada (${totalDistributedStock}) supera el Stock General del Producto (${totalGeneralStock}). Ajusta las cantidades.`);
+      return;
+    }
+
+    setSavingDistribution(true);
+    setDistributionSuccess(null);
+
+    const payload = {
+      productId: selectedProductId,
+      allocations: Object.entries(allocations).map(([whId, qty]) => ({
+        warehouseId: whId,
+        stock: qty
+      }))
+    };
+
+    try {
+      await apiClient.put('/inventory/stock-distribution', payload);
+      setDistributionSuccess(`¡Distribución guardada con éxito para ${selectedProduct?.name}!`);
+      setTimeout(() => setDistributionSuccess(null), 4000);
+    } catch (err: any) {
+      alert('Error al guardar distribución: ' + (err.response?.data?.message || err.message));
+    } finally {
+      setSavingDistribution(false);
+    }
+  };
+
   const handleCreateWarehouse = async (e: React.FormEvent) => {
     e.preventDefault();
     setSavingWh(true);
     try {
       await apiClient.post('/inventory/warehouses', {
-        name,
-        city,
-        address,
+        name: whName,
+        city: whCity,
+        address: whAddress,
         vendorId: vendorId || undefined
       });
       setCreateWhModal(false);
-      setName('');
-      setCity('');
-      setAddress('');
+      setWhName('');
+      setWhCity('');
+      setWhAddress('');
       fetchData();
     } catch (err: any) {
       alert('Error al crear almacén: ' + (err.response?.data?.message || err.message));
@@ -72,10 +127,10 @@ export const AdminTransfersPage: React.FC = () => {
         <div>
           <h1 className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-2">
             <FontAwesomeIcon icon={faWarehouse} />
-            <span>Gestión de Almacenes & Sucursales</span>
+            <span>Gestión de Almacenes & Distribución de Stock</span>
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Cada sucursal o almacén está asignado a un Vendedor comercial de la plataforma.
+            Asigna el stock general de cada producto a los almacenes y vendedores de la plataforma.
           </p>
         </div>
 
@@ -90,7 +145,7 @@ export const AdminTransfersPage: React.FC = () => {
         )}
       </div>
 
-      {/* Pestañas */}
+      {/* Pestañas (Tabs) */}
       <div className="flex border-b border-slate-200 dark:border-slate-700 gap-4">
         <button
           onClick={() => setActiveTab('warehouses')}
@@ -101,22 +156,22 @@ export const AdminTransfersPage: React.FC = () => {
         </button>
 
         <button
-          onClick={() => setActiveTab('transfers')}
-          className={`py-3 px-4 text-sm font-bold border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'transfers' ? 'border-emerald-500 text-emerald-600 dark:text-emerald-400' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
+          onClick={() => setActiveTab('distribution')}
+          className={`py-3 px-4 text-sm font-bold border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'distribution' ? 'border-emerald-500 text-emerald-600 dark:text-emerald-400' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
         >
-          <FontAwesomeIcon icon={faRightLeft} />
-          <span>Transferencias de Inventario</span>
+          <FontAwesomeIcon icon={faBoxesPacking} />
+          <span>Distribución de Stock a Vendedores</span>
         </button>
       </div>
 
       {loading && (
         <div className="flex flex-col items-center justify-center py-16 space-y-3">
           <FontAwesomeIcon icon={faSpinner} spin className="text-4xl text-emerald-500" />
-          <p className="text-sm text-slate-500">Cargando sucursales y vendedores...</p>
+          <p className="text-sm text-slate-500">Cargando sucursales y productos...</p>
         </div>
       )}
 
-      {/* Pestaña 1: Almacenes con Vendedor Asignado */}
+      {/* PESTAÑA 1: Directorio de Sucursales / Almacenes */}
       {!loading && activeTab === 'warehouses' && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {warehouses.map((wh) => (
@@ -128,10 +183,7 @@ export const AdminTransfersPage: React.FC = () => {
                   </div>
                   <div>
                     <h3 className="font-bold text-slate-900 dark:text-white text-base leading-snug">{wh.name}</h3>
-                    <p className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1 mt-0.5">
-                      <FontAwesomeIcon icon={faMapMarkerAlt} />
-                      <span>{wh.city || 'Sucursal Central'}</span>
-                    </p>
+                    <p className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold">{wh.city || 'Sucursal Central'}</p>
                   </div>
                 </div>
 
@@ -140,7 +192,6 @@ export const AdminTransfersPage: React.FC = () => {
                 </p>
               </div>
 
-              {/* Vendedor Asignado */}
               <div className="pt-3 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between text-xs">
                 <div className="flex items-center gap-2">
                   <FontAwesomeIcon icon={faStore} className="text-amber-500 text-sm" />
@@ -151,26 +202,132 @@ export const AdminTransfersPage: React.FC = () => {
                     </span>
                   </div>
                 </div>
-
-                {wh.vendor && (
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 font-bold border border-amber-300 dark:border-amber-700/40">
-                    {wh.vendor.role}
-                  </span>
-                )}
               </div>
             </div>
           ))}
         </div>
       )}
 
-      {/* Pestaña 2: Transferencias */}
-      {!loading && activeTab === 'transfers' && (
-        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm p-12 text-center text-slate-500 text-sm">
-          No hay transferencias de stock entre sucursales registradas actualmente.
+      {/* PESTAÑA 2: Panel de Distribución de Stock por Producto */}
+      {!loading && activeTab === 'distribution' && (
+        <div className="space-y-6">
+          {/* Selector de Producto */}
+          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-sm space-y-4">
+            <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200">
+              Seleccionar Producto del Catálogo para Distribuir *
+            </label>
+            <select
+              value={selectedProductId}
+              onChange={(e) => {
+                setSelectedProductId(e.target.value);
+                setAllocations({});
+              }}
+              className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl font-bold text-base outline-none dark:text-white"
+            >
+              {products.map((prod) => (
+                <option key={prod.id} value={prod.id}>
+                  {prod.name} (SKU: {prod.sku}) - Stock General: {prod.stock !== undefined ? prod.stock : 10} Unid.
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Tarjetas de Métricas de Distribución */}
+          {selectedProduct && (
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-5 rounded-2xl flex items-center gap-4">
+                <div className="p-3 bg-sky-500/10 text-sky-600 dark:text-sky-400 rounded-xl text-2xl">
+                  <FontAwesomeIcon icon={faChartPie} />
+                </div>
+                <div>
+                  <p className="text-xs text-slate-400 uppercase font-semibold">Stock General Registrado</p>
+                  <p className="text-2xl font-black text-slate-900 dark:text-white">{totalGeneralStock} Unid.</p>
+                </div>
+              </div>
+
+              <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-5 rounded-2xl flex items-center gap-4">
+                <div className="p-3 bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-xl text-2xl">
+                  <FontAwesomeIcon icon={faBoxesPacking} />
+                </div>
+                <div>
+                  <p className="text-xs text-slate-400 uppercase font-semibold">Stock Asignado a Sucursales</p>
+                  <p className="text-2xl font-black text-amber-600 dark:text-amber-400">{totalDistributedStock} Unid.</p>
+                </div>
+              </div>
+
+              <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-5 rounded-2xl flex items-center gap-4">
+                <div className={`p-3 rounded-xl text-2xl ${unassignedReserve < 0 ? 'bg-rose-500/10 text-rose-600' : 'bg-emerald-500/10 text-emerald-600'}`}>
+                  <FontAwesomeIcon icon={unassignedReserve < 0 ? faExclamationTriangle : faCheckCircle} />
+                </div>
+                <div>
+                  <p className="text-xs text-slate-400 uppercase font-semibold">Reserva Central (Sin Asignar)</p>
+                  <p className={`text-2xl font-black ${unassignedReserve < 0 ? 'text-rose-600' : 'text-emerald-600'}`}>
+                    {unassignedReserve} Unid.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {distributionSuccess && (
+            <div className="p-4 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-700 text-emerald-800 dark:text-emerald-200 rounded-2xl text-sm font-semibold flex items-center gap-2">
+              <FontAwesomeIcon icon={faCheckCircle} className="text-lg text-emerald-500" />
+              <span>{distributionSuccess}</span>
+            </div>
+          )}
+
+          {/* Tabla de Asignación a Vendedores */}
+          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm overflow-hidden p-6 space-y-4">
+            <h3 className="font-bold text-slate-900 dark:text-white text-lg">
+              Reparto de Cuotas por Almacén Vendedor
+            </h3>
+
+            <div className="space-y-3">
+              {warehouses.map((wh) => (
+                <div key={wh.id} className="p-4 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700/60 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 bg-amber-500/10 text-amber-600 rounded-lg text-xl">
+                      <FontAwesomeIcon icon={faStore} />
+                    </div>
+                    <div>
+                      <p className="font-bold text-slate-900 dark:text-white text-sm">{wh.name}</p>
+                      <p className="text-xs text-slate-400 font-medium">
+                        Vendedor: {wh.vendor ? wh.vendor.name : 'Sin Vendedor'} ({wh.city || 'Central'})
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-semibold text-slate-500">Asignar Stock:</span>
+                    <input
+                      type="number"
+                      min="0"
+                      value={allocations[wh.id] !== undefined ? allocations[wh.id] : 0}
+                      onChange={(e) => handleStockChange(wh.id, e.target.value)}
+                      placeholder="0"
+                      className="w-28 px-3 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl font-bold text-emerald-600 text-sm text-center outline-none"
+                    />
+                    <span className="text-xs text-slate-400 font-semibold">Unid.</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="pt-4 border-t border-slate-100 dark:border-slate-700 flex justify-end">
+              <button
+                onClick={handleSaveDistribution}
+                disabled={savingDistribution || totalDistributedStock > totalGeneralStock}
+                className="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-400 text-white font-bold text-sm rounded-xl transition-colors flex items-center gap-2 shadow-lg shadow-emerald-600/20"
+              >
+                {savingDistribution ? <FontAwesomeIcon icon={faSpinner} spin /> : <FontAwesomeIcon icon={faSave} />}
+                <span>Guardar Distribución de Stock</span>
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
-      {/* Modal Crear Almacén con Selección de Vendedor */}
+      {/* Modal Crear Almacén */}
       {createWhModal && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4">
@@ -188,8 +345,8 @@ export const AdminTransfersPage: React.FC = () => {
                 </label>
                 <input
                   type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  value={whName}
+                  onChange={(e) => setWhName(e.target.value)}
                   placeholder="Ej. Sucursal Cochabamba Norte"
                   className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl text-sm outline-none dark:text-white"
                   required
@@ -218,8 +375,8 @@ export const AdminTransfersPage: React.FC = () => {
                 <label className="block text-xs font-semibold mb-1 text-slate-700 dark:text-slate-300">Ciudad</label>
                 <input
                   type="text"
-                  value={city}
-                  onChange={(e) => setCity(e.target.value)}
+                  value={whCity}
+                  onChange={(e) => setWhCity(e.target.value)}
                   placeholder="Ej. Cochabamba"
                   className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl text-sm outline-none dark:text-white"
                 />
@@ -229,8 +386,8 @@ export const AdminTransfersPage: React.FC = () => {
                 <label className="block text-xs font-semibold mb-1 text-slate-700 dark:text-slate-300">Dirección</label>
                 <input
                   type="text"
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
+                  value={whAddress}
+                  onChange={(e) => setWhAddress(e.target.value)}
                   placeholder="Ej. Av. Ballivián 789"
                   className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl text-sm outline-none dark:text-white"
                 />
