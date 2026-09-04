@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUserPlus, faSpinner, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
@@ -15,6 +15,9 @@ export const RegisterPage: React.FC = () => {
   const [role, setRole] = useState<'CLIENTE' | 'VENDEDOR'>('CLIENTE');
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const location = useLocation();
+  const from = location.state?.from?.pathname || null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,7 +37,9 @@ export const RegisterPage: React.FC = () => {
 
     try {
       const res = await register(name, email, password, role);
-      if (res.user.role === 'SUPERADMIN') {
+      if (from) {
+        navigate(from);
+      } else if (res.user.role === 'SUPERADMIN') {
         navigate('/admin');
       } else if (res.user.role === 'VENDEDOR') {
         navigate('/vendor');
@@ -164,7 +169,7 @@ export const RegisterPage: React.FC = () => {
 
         <p className="mt-6 text-center text-sm text-slate-600 dark:text-slate-400">
           ¿Ya tienes una cuenta?{' '}
-          <Link to="/login" className="text-sky-600 dark:text-sky-400 font-semibold hover:underline">
+          <Link to="/login" state={{ from: location.state?.from }} className="text-sky-600 dark:text-sky-400 font-semibold hover:underline">
             Inicia sesión aquí
           </Link>
         </p>

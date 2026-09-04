@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSignInAlt, faSpinner, faExclamationTriangle, faShieldHalved, faStore, faUser } from '@fortawesome/free-solid-svg-icons';
@@ -41,8 +41,13 @@ export const LoginPage: React.FC = () => {
     }
   };
 
+  const location = useLocation();
+  const from = location.state?.from?.pathname || null;
+
   const redirectByRole = (role: string) => {
-    if (role === 'SUPERADMIN') {
+    if (from) {
+      navigate(from);
+    } else if (role === 'SUPERADMIN') {
       navigate('/admin');
     } else if (role === 'VENDEDOR') {
       navigate('/vendor');
@@ -145,7 +150,7 @@ export const LoginPage: React.FC = () => {
 
         <p className="mt-6 text-center text-sm text-slate-600 dark:text-slate-400">
           ¿No tienes una cuenta?{' '}
-          <Link to="/register" className="text-sky-600 dark:text-sky-400 font-semibold hover:underline">
+          <Link to="/register" state={{ from: location.state?.from }} className="text-sky-600 dark:text-sky-400 font-semibold hover:underline">
             Regístrate aquí
           </Link>
         </p>

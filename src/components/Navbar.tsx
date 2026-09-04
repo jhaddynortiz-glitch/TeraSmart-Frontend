@@ -4,10 +4,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faShoppingCart, faStore, faUserShield, faSignInAlt, faUserPlus, faSun, faMoon, faSignOutAlt, faUserCheck, faBars, faXmark, faGauge } from '@fortawesome/free-solid-svg-icons';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
+import { useCart } from '../context/CartContext';
 
 export const Navbar: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
   const { user, isAuthenticated, logout } = useAuth();
+  const { totalQuantity } = useCart();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -29,9 +31,14 @@ export const Navbar: React.FC = () => {
         {/* NAVEGACIÓN DESKTOP (pantallas medianas y grandes) */}
         <nav className="hidden md:flex items-center space-x-5">
           <Link to="/" className="text-slate-700 dark:text-slate-300 hover:text-sky-600 dark:hover:text-white font-medium text-sm">Catálogo</Link>
-          <Link to="/cart" className="text-slate-700 dark:text-slate-300 hover:text-sky-600 dark:hover:text-sky-400 font-medium text-sm flex items-center gap-1.5">
+          <Link to="/cart" className="relative text-slate-700 dark:text-slate-300 hover:text-sky-600 dark:hover:text-sky-400 font-medium text-sm flex items-center gap-1.5">
             <FontAwesomeIcon icon={faShoppingCart} />
             <span>Carrito</span>
+            {totalQuantity > 0 && (
+              <span className="absolute -top-2 -right-3 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                {totalQuantity}
+              </span>
+            )}
           </Link>
           
          {/*  {(user?.role === 'VENDEDOR' || user?.role === 'SUPERADMIN') && (
@@ -125,10 +132,17 @@ export const Navbar: React.FC = () => {
           <Link
             to="/cart"
             onClick={() => setMobileMenuOpen(false)}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700"
+            className="flex items-center justify-between px-3 py-2 rounded-lg text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700"
           >
-            <FontAwesomeIcon icon={faShoppingCart} />
-            <span>Carrito de Compras</span>
+            <div className="flex items-center gap-2">
+              <FontAwesomeIcon icon={faShoppingCart} />
+              <span>Carrito de Compras</span>
+            </div>
+            {totalQuantity > 0 && (
+              <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                {totalQuantity}
+              </span>
+            )}
           </Link>
 
           {(user?.role === 'VENDEDOR' || user?.role === 'SUPERADMIN') && (

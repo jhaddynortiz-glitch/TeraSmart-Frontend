@@ -3,6 +3,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { PublicLayout } from '../layouts/PublicLayout';
 import { VendorLayout } from '../layouts/VendorLayout';
 import { AdminLayout } from '../layouts/AdminLayout';
+import { ProtectedRoute } from '../components/ProtectedRoute';
 
 import { HomePage } from '../pages/user/HomePage';
 import { LoginPage } from '../pages/user/LoginPage';
@@ -35,12 +36,12 @@ const router = createBrowserRouter([
       { path: 'register', element: <RegisterPage /> },
       { path: 'products/:id', element: <ProductDetailPage /> },
       { path: 'cart', element: <CartPage /> },
-      { path: 'checkout', element: <CheckoutPage /> },
+      { path: 'checkout', element: <ProtectedRoute><CheckoutPage /></ProtectedRoute> },
     ]
   },
   {
     path: '/vendor',
-    element: <VendorLayout />,
+    element: <ProtectedRoute allowedRoles={['VENDEDOR']}><VendorLayout /></ProtectedRoute>,
     children: [
       { index: true, element: <VendorDashboardPage /> },
       { path: 'orders', element: <VendorOrdersPage /> },
@@ -51,7 +52,7 @@ const router = createBrowserRouter([
   },
   {
     path: '/admin',
-    element: <AdminLayout />,
+    element: <ProtectedRoute allowedRoles={['SUPERADMIN']}><AdminLayout /></ProtectedRoute>,
     children: [
       { index: true, element: <AdminDashboardPage /> },
       { path: 'transfers', element: <AdminTransfersPage /> },

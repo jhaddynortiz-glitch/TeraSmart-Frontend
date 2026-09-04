@@ -3,13 +3,26 @@ import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faShoppingCart, faEye, faTag, faLayerGroup } from '@fortawesome/free-solid-svg-icons';
 import { Product } from '../services/productService';
-
+import { useCart } from '../context/CartContext';
 interface ProductCardProps {
   product: Product;
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+  const { addToCart } = useCart();
   const defaultImage = 'https://images.unsplash.com/photo-1526738549149-8e07eca6c147?auto=format&fit=crop&w=600&q=80';
+
+  const handleAddToCart = () => {
+    addToCart({
+      id: product.id,
+      productId: product.id,
+      name: product.name,
+      price: Number(product.basePrice),
+      quantity: 1,
+      imageUrl: product.mainImageUrl || defaultImage
+    });
+    // Opcional: Podríamos mostrar un toast aquí
+  };
 
   return (
     <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl dark:shadow-none transition-all duration-300 flex flex-col group">
@@ -79,21 +92,21 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
           {/* Acciones */}
           <div className="grid grid-cols-2 gap-2">
-            {/* <Link
+            <Link
               to={`/products/${product.id}`}
               className="w-full py-2 px-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-white text-xs font-bold rounded-xl transition-colors flex items-center justify-center gap-1.5"
             >
               <FontAwesomeIcon icon={faEye} />
               <span>Ver Detalle</span>
-            </Link> */}
+            </Link>
 
-            <Link
-              to={`/products/${product.id}`}
+            <button
+              onClick={handleAddToCart}
               className="w-full py-2 px-3 bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold rounded-xl transition-colors flex items-center justify-center gap-1.5 shadow-md shadow-sky-600/20"
             >
               <FontAwesomeIcon icon={faShoppingCart} />
-              <span>Comprar</span>
-            </Link>
+              <span>Añadir</span>
+            </button>
           </div>
         </div>
       </div>
