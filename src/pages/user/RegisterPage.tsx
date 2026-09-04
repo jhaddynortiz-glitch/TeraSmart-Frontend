@@ -12,7 +12,6 @@ export const RegisterPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [role, setRole] = useState<'CLIENTE' | 'VENDEDOR'>('CLIENTE');
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -36,7 +35,7 @@ export const RegisterPage: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      const res = await register(name, email, password, role);
+      const res = await register(name, email, password, 'CLIENTE');
       if (from) {
         navigate(from);
       } else if (res.user.role === 'SUPERADMIN') {
@@ -99,20 +98,7 @@ export const RegisterPage: React.FC = () => {
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1" htmlFor="role">
-              Tipo de Cuenta
-            </label>
-            <select
-              id="role"
-              value={role}
-              onChange={(e) => setRole(e.target.value as 'CLIENTE' | 'VENDEDOR')}
-              className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-sky-500 outline-none transition-all dark:text-white text-sm font-medium"
-            >
-              <option value="CLIENTE">Cliente (Comprar productos)</option>
-              <option value="VENDEDOR">Vendedor (Gestionar almacén y ventas)</option>
-            </select>
-          </div>
+
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
