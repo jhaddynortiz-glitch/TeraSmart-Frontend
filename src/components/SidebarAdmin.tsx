@@ -47,7 +47,7 @@ export const SidebarAdmin: React.FC<SidebarAdminProps> = ({ onCloseMobile }) => 
           <FontAwesomeIcon icon={faGauge} /> Dashboard
         </NavLink>
         <NavLink to="/admin/transfers" onClick={handleNavClick} className={({ isActive }) => `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium ${isActive ? 'bg-emerald-50 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-500/40' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'}`}>
-          <FontAwesomeIcon icon={faRightLeft} /> Transferencia Almacenes
+          <FontAwesomeIcon icon={faRightLeft} /> Gestión de Almacenes
         </NavLink>
         <NavLink to="/admin/products" onClick={handleNavClick} className={({ isActive }) => `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium ${isActive ? 'bg-emerald-50 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-500/40' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'}`}>
           <FontAwesomeIcon icon={faBoxArchive} /> Productos
