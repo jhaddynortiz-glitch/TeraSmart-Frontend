@@ -127,6 +127,7 @@ export const AdminProductsPage: React.FC = () => {
                     <th className="py-3.5 px-4">SKU</th>
                     <th className="py-3.5 px-4">Categoría / Marca</th>
                     <th className="py-3.5 px-4">Precio Base</th>
+                    <th className="py-3.5 px-4 font-bold text-emerald-600 dark:text-emerald-400">Stock General</th>
                     <th className="py-3.5 px-4 text-center">Acciones</th>
                   </tr>
                 </thead>
@@ -168,6 +169,10 @@ export const AdminProductsPage: React.FC = () => {
 
                       <td className="py-3.5 px-4 font-bold text-slate-900 dark:text-white">
                         ${Number(prod.basePrice).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                      </td>
+
+                      <td className="py-3.5 px-4 font-bold text-emerald-600 dark:text-emerald-400">
+                        {prod.stock !== undefined ? prod.stock : 10} Unid.
                       </td>
 
                       <td className="py-3.5 px-4 text-center">

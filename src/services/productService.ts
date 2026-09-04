@@ -28,6 +28,7 @@ export interface Product {
   name: string;
   description?: string;
   basePrice: number;
+  stock?: number;
   weightKg?: number;
   mainImageUrl?: string;
   category?: { id: string; name: string };
