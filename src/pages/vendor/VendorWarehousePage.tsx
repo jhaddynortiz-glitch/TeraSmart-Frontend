@@ -180,7 +180,7 @@ export const VendorWarehousePage: React.FC = () => {
                         </td>
                         <td className="p-4 text-slate-500 font-mono text-xs">{prod.sku}</td>
                         <td className="p-4 font-bold text-emerald-600 dark:text-emerald-400">
-                          ${prod.basePrice.toFixed(2)}
+                          ${Number(prod.basePrice || 0).toFixed(2)}
                         </td>
                         <td className="p-4 text-center">
                           <span className="font-extrabold text-base text-slate-800 dark:text-slate-100">

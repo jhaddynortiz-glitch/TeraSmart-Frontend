@@ -144,7 +144,7 @@ export const VendorProductsPage: React.FC = () => {
                     <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-700">
                       <div>
                         <span className="text-[10px] text-slate-400 font-semibold block uppercase">Precio Base</span>
-                        <span className="text-xl font-black text-emerald-600 dark:text-emerald-400">${prod.basePrice.toFixed(2)}</span>
+                        <span className="text-xl font-black text-emerald-600 dark:text-emerald-400">${Number(prod.basePrice || 0).toFixed(2)}</span>
                       </div>
 
                       <div className="text-right">
