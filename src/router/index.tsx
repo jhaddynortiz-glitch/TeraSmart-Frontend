@@ -14,7 +14,6 @@ import { CheckoutPage } from '../pages/user/CheckoutPage';
 import { VendorDashboardPage } from '../pages/vendor/VendorDashboardPage';
 import { VendorOrdersPage } from '../pages/vendor/VendorOrdersPage';
 import { VendorProductsPage } from '../pages/vendor/VendorProductsPage';
-import { VendorWarehousePage } from '../pages/vendor/VendorWarehousePage';
 
 import { AdminDashboardPage } from '../pages/admin/AdminDashboardPage';
 import { AdminTransfersPage } from '../pages/admin/AdminTransfersPage';
@@ -46,8 +45,8 @@ const router = createBrowserRouter([
       { index: true, element: <VendorDashboardPage /> },
       { path: 'orders', element: <VendorOrdersPage /> },
       { path: 'products', element: <VendorProductsPage /> },
-      { path: 'warehouse', element: <VendorWarehousePage /> },
-      { path: 'transfers', element: <VendorWarehousePage /> },
+      { path: 'warehouse', element: <VendorProductsPage /> },
+      { path: 'transfers', element: <VendorProductsPage /> },
     ]
   },
   {
