@@ -16,7 +16,8 @@ import {
   faTimes,
   faChevronDown,
   faChevronUp,
-  faRefresh
+  faRefresh,
+  faBoxOpen
 } from '@fortawesome/free-solid-svg-icons';
 
 export const AdminTransfersPage: React.FC = () => {
@@ -178,10 +179,10 @@ export const AdminTransfersPage: React.FC = () => {
         <div>
           <h1 className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-2">
             <FontAwesomeIcon icon={faWarehouse} />
-            <span>Gestión de Almacenes & Distribución de Stock</span>
+            <span>Gestión de Almacenes & Asignación de Stock</span>
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Asigna y reparte el stock general de cada producto a los almacenes y vendedores de la plataforma.
+            Selecciona un producto del catálogo para repartir su stock general entre los almacenes de los vendedores.
           </p>
         </div>
 
@@ -224,14 +225,16 @@ export const AdminTransfersPage: React.FC = () => {
 
       {!loading && (
         <div className="space-y-6">
-          {/* SECCIÓN 1: Selección del Producto */}
+          {/* SECCIÓN 1: Selector de Producto */}
           <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-sm space-y-3">
-            <label className="block text-sm font-bold text-slate-800 dark:text-slate-200">
-              Seleccionar Producto del Catálogo para Distribuir *
+            <label className="block text-sm font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+              <FontAwesomeIcon icon={faBoxOpen} className="text-emerald-500" />
+              <span>Paso 1: Selecciona el Producto del Catálogo a Asignar *</span>
             </label>
+
             {products.length === 0 ? (
               <p className="text-sm text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 p-3 rounded-xl border border-amber-200 dark:border-amber-800">
-                ⚠️ No se encontraron productos en el catálogo. Registra productos en la pestaña "Gestión de Productos" para comenzar a asignar stock.
+                ⚠️ No se encontraron productos en el catálogo. Registra productos en la pestaña "Productos" para comenzar a repartir stock.
               </p>
             ) : (
               <select
@@ -240,18 +243,18 @@ export const AdminTransfersPage: React.FC = () => {
                   setSelectedProductId(e.target.value);
                   setAllocations({});
                 }}
-                className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl font-bold text-base outline-none dark:text-white"
+                className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl font-bold text-base outline-none dark:text-white focus:ring-2 focus:ring-emerald-500"
               >
                 {products.map((prod) => (
                   <option key={prod.id} value={prod.id}>
-                    {prod.name} (SKU: {prod.sku}) — Stock General: {prod.stock !== undefined ? prod.stock : 10} Unid.
+                    📦 {prod.name} (SKU: {prod.sku}) — Stock Central Disponible: {prod.stock !== undefined ? prod.stock : 10} Unid.
                   </option>
                 ))}
               </select>
             )}
           </div>
 
-          {/* SECCIÓN 2: Métricas de Distribución */}
+          {/* SECCIÓN 2: Métricas del Producto Seleccionado */}
           {selectedProduct && (
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-5 rounded-2xl flex items-center gap-4 shadow-sm">
@@ -259,7 +262,7 @@ export const AdminTransfersPage: React.FC = () => {
                   <FontAwesomeIcon icon={faChartPie} />
                 </div>
                 <div>
-                  <p className="text-xs text-slate-400 uppercase font-semibold">Stock General Registrado</p>
+                  <p className="text-xs text-slate-400 uppercase font-semibold">Stock General Central</p>
                   <p className="text-2xl font-black text-slate-900 dark:text-white">{totalGeneralStock} Unid.</p>
                 </div>
               </div>
@@ -269,7 +272,7 @@ export const AdminTransfersPage: React.FC = () => {
                   <FontAwesomeIcon icon={faBoxesPacking} />
                 </div>
                 <div>
-                  <p className="text-xs text-slate-400 uppercase font-semibold">Stock Asignado a Vendedores</p>
+                  <p className="text-xs text-slate-400 uppercase font-semibold">Stock Repartido a Sucursales</p>
                   <p className="text-2xl font-black text-amber-600 dark:text-amber-400">{totalDistributedStock} Unid.</p>
                 </div>
               </div>
@@ -279,7 +282,7 @@ export const AdminTransfersPage: React.FC = () => {
                   <FontAwesomeIcon icon={unassignedReserve < 0 ? faExclamationTriangle : faCheckCircle} />
                 </div>
                 <div>
-                  <p className="text-xs text-slate-400 uppercase font-semibold">Reserva Central (Sin Asignar)</p>
+                  <p className="text-xs text-slate-400 uppercase font-semibold">Reserva Central Restante</p>
                   <p className={`text-2xl font-black ${unassignedReserve < 0 ? 'text-rose-600' : 'text-emerald-600'}`}>
                     {unassignedReserve} Unid.
                   </p>
@@ -295,74 +298,88 @@ export const AdminTransfersPage: React.FC = () => {
             </div>
           )}
 
-          {/* SECCIÓN 3: Tabla de Reparto de Cuotas por Sucursal/Vendedor */}
-          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm overflow-hidden p-6 space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="font-bold text-slate-900 dark:text-white text-lg">
-                Reparto de Cuotas por Sucursal y Vendedor Responsable
-              </h3>
-              <span className="text-xs text-slate-400 font-semibold">{warehouses.length} Sucursales activas</span>
+          {/* SECCIÓN 3: Reparto de Cuotas por Sucursal para el Producto Seleccionado */}
+          {selectedProduct && (
+            <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm overflow-hidden p-6 space-y-5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-700">
+                <div>
+                  <span className="text-xs text-emerald-600 dark:text-emerald-400 font-bold uppercase tracking-wider block">
+                    Paso 2: Asignar Cuotas del Producto
+                  </span>
+                  <h3 className="font-extrabold text-slate-900 dark:text-white text-xl flex items-center gap-2 mt-0.5">
+                    <span>{selectedProduct.name}</span>
+                    <span className="text-xs bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-mono px-2.5 py-0.5 rounded-md font-bold">
+                      SKU: {selectedProduct.sku}
+                    </span>
+                  </h3>
+                </div>
+
+                <div className="bg-emerald-50 dark:bg-emerald-950/50 px-4 py-2 rounded-xl border border-emerald-200 dark:border-emerald-800 text-right">
+                  <span className="text-[10px] text-emerald-700 dark:text-emerald-300 font-bold uppercase block">Stock Central Disponible</span>
+                  <span className="text-lg font-black text-emerald-600 dark:text-emerald-400">{totalGeneralStock} Unidades</span>
+                </div>
+              </div>
+
+              {warehouses.length === 0 ? (
+                <div className="text-center py-8 bg-slate-50 dark:bg-slate-900 rounded-xl border border-dashed border-slate-300 dark:border-slate-700">
+                  <p className="text-sm text-slate-500 font-semibold">No hay sucursales registradas aún.</p>
+                  <button
+                    onClick={() => setCreateWhModal(true)}
+                    className="mt-3 px-4 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold"
+                  >
+                    <FontAwesomeIcon icon={faPlus} className="mr-1.5" />
+                    Crear Primera Sucursal
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {warehouses.map((wh) => (
+                    <div key={wh.id} className="p-4 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700/60 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                      <div className="flex items-center gap-3">
+                        <div className="p-3 bg-amber-500/10 text-amber-600 rounded-xl text-xl">
+                          <FontAwesomeIcon icon={faStore} />
+                        </div>
+                        <div>
+                          <p className="font-bold text-slate-900 dark:text-white text-sm">{wh.name}</p>
+                          <p className="text-xs text-slate-400 font-medium">
+                            Vendedor Responsable: <span className="text-slate-700 dark:text-slate-300 font-semibold">{wh.vendor ? wh.vendor.name : 'Sin Vendedor'}</span> ({wh.city || 'Central'})
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 bg-white dark:bg-slate-800 p-2 rounded-xl border border-slate-200 dark:border-slate-700">
+                        <span className="text-xs font-bold text-slate-600 dark:text-slate-300">Asignar Stock de "{selectedProduct.name.substring(0, 15)}...":</span>
+                        <input
+                          type="number"
+                          min="0"
+                          value={allocations[wh.id] !== undefined ? allocations[wh.id] : 0}
+                          onChange={(e) => handleStockChange(wh.id, e.target.value)}
+                          placeholder="0"
+                          className="w-24 px-3 py-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg font-bold text-emerald-600 text-sm text-center outline-none focus:ring-2 focus:ring-emerald-500"
+                        />
+                        <span className="text-xs text-slate-400 font-semibold">Unid.</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {warehouses.length > 0 && selectedProduct && (
+                <div className="pt-4 border-t border-slate-100 dark:border-slate-700 flex justify-end">
+                  <button
+                    onClick={handleSaveDistribution}
+                    disabled={savingDistribution || totalDistributedStock > totalGeneralStock}
+                    className="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-400 text-white font-bold text-sm rounded-xl transition-colors flex items-center gap-2 shadow-lg shadow-emerald-600/20"
+                  >
+                    {savingDistribution ? <FontAwesomeIcon icon={faSpinner} spin /> : <FontAwesomeIcon icon={faSave} />}
+                    <span>Guardar Distribución de "{selectedProduct.name}"</span>
+                  </button>
+                </div>
+              )}
             </div>
+          )}
 
-            {warehouses.length === 0 ? (
-              <div className="text-center py-8 bg-slate-50 dark:bg-slate-900 rounded-xl border border-dashed border-slate-300 dark:border-slate-700">
-                <p className="text-sm text-slate-500 font-semibold">No hay sucursales registradas aún.</p>
-                <button
-                  onClick={() => setCreateWhModal(true)}
-                  className="mt-3 px-4 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold"
-                >
-                  <FontAwesomeIcon icon={faPlus} className="mr-1.5" />
-                  Crear Primera Sucursal
-                </button>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {warehouses.map((wh) => (
-                  <div key={wh.id} className="p-4 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700/60 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2.5 bg-amber-500/10 text-amber-600 rounded-lg text-xl">
-                        <FontAwesomeIcon icon={faStore} />
-                      </div>
-                      <div>
-                        <p className="font-bold text-slate-900 dark:text-white text-sm">{wh.name}</p>
-                        <p className="text-xs text-slate-400 font-medium">
-                          Vendedor: <span className="text-slate-700 dark:text-slate-300 font-semibold">{wh.vendor ? wh.vendor.name : 'Sin Vendedor'}</span> ({wh.city || 'Central'})
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-semibold text-slate-500">Asignar Stock:</span>
-                      <input
-                        type="number"
-                        min="0"
-                        value={allocations[wh.id] !== undefined ? allocations[wh.id] : 0}
-                        onChange={(e) => handleStockChange(wh.id, e.target.value)}
-                        placeholder="0"
-                        className="w-28 px-3 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl font-bold text-emerald-600 text-sm text-center outline-none focus:ring-2 focus:ring-emerald-500"
-                      />
-                      <span className="text-xs text-slate-400 font-semibold">Unid.</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {warehouses.length > 0 && selectedProduct && (
-              <div className="pt-4 border-t border-slate-100 dark:border-slate-700 flex justify-end">
-                <button
-                  onClick={handleSaveDistribution}
-                  disabled={savingDistribution || totalDistributedStock > totalGeneralStock}
-                  className="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-400 text-white font-bold text-sm rounded-xl transition-colors flex items-center gap-2 shadow-lg shadow-emerald-600/20"
-                >
-                  {savingDistribution ? <FontAwesomeIcon icon={faSpinner} spin /> : <FontAwesomeIcon icon={faSave} />}
-                  <span>Guardar Distribución de Stock</span>
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* SECCIÓN 4: Acordeón opcional para consultar detalles de las Sucursales */}
+          {/* SECCIÓN 4: Acordeón para consultar detalles de las Sucursales */}
           <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-sm space-y-4">
             <button
               onClick={() => setShowWarehouseList(!showWarehouseList)}
