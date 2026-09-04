@@ -43,73 +43,17 @@ export const VendorOrdersPage: React.FC = () => {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [updatingStatus, setUpdatingStatus] = useState(false);
 
-  const mockOrders: Order[] = [
-    {
-      id: 'ORD-9021',
-      clientName: 'Carlos Mendoza',
-      clientEmail: 'carlos.mendoza@gmail.com',
-      address: 'Av. Ballivián #450, Piso 3',
-      city: 'Cochabamba',
-      status: 'PENDIENTE',
-      total: 154.00,
-      createdAt: '2026-09-03 18:30',
-      items: [
-        { id: '1', productName: 'Audífonos Bluetooth Pro', quantity: 1, unitPrice: 99.00 },
-        { id: '2', productName: 'Cargador Rápido USB-C 65W', quantity: 1, unitPrice: 55.00 }
-      ]
-    },
-    {
-      id: 'ORD-9018',
-      clientName: 'María López',
-      clientEmail: 'maria.lopez@yahoo.com',
-      address: 'Calle España #120',
-      city: 'Cochabamba',
-      status: 'EN PREPARACIÓN',
-      total: 89.50,
-      createdAt: '2026-09-03 16:15',
-      items: [
-        { id: '3', productName: 'Teclado Mecánico RGB', quantity: 1, unitPrice: 89.50 }
-      ]
-    },
-    {
-      id: 'ORD-9012',
-      clientName: 'Roberto Gómez',
-      clientEmail: 'roberto.g@hotmail.com',
-      address: 'Av. Heroínas #780',
-      city: 'Cochabamba',
-      status: 'ENVIADO',
-      total: 320.00,
-      createdAt: '2026-09-02 11:45',
-      items: [
-        { id: '4', productName: 'Monitor Gamer 24" Full HD', quantity: 1, unitPrice: 320.00 }
-      ]
-    },
-    {
-      id: 'ORD-8995',
-      clientName: 'Lucía Fernández',
-      clientEmail: 'lucia.f@gmail.com',
-      address: 'Calle Baptista #340',
-      city: 'Cochabamba',
-      status: 'ENTREGADO',
-      total: 45.00,
-      createdAt: '2026-09-01 09:20',
-      items: [
-        { id: '5', productName: 'Mouse Pad Gamer XXL', quantity: 1, unitPrice: 45.00 }
-      ]
-    }
-  ];
-
   const fetchOrders = async () => {
     setLoading(true);
     try {
       const res = await apiClient.get('/orders/my-orders').catch(() => null);
-      if (res && res.data && Array.isArray(res.data) && res.data.length > 0) {
+      if (res && res.data && Array.isArray(res.data)) {
         setOrders(res.data);
       } else {
-        setOrders(mockOrders);
+        setOrders([]);
       }
     } catch {
-      setOrders(mockOrders);
+      setOrders([]);
     } finally {
       setLoading(false);
     }
@@ -179,75 +123,87 @@ export const VendorOrdersPage: React.FC = () => {
       )}
 
       {!loading && (
-        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm overflow-hidden">
-          <div className="p-5 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
-            <h3 className="font-bold text-slate-900 dark:text-white text-base">
-              Listado de Pedidos ({filteredOrders.length})
-            </h3>
-            <span className="text-xs text-slate-400 font-semibold">Mostrando filtro: {statusFilter}</span>
-          </div>
+        <>
+          {filteredOrders.length === 0 ? (
+            <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-12 text-center space-y-3 shadow-sm">
+              <FontAwesomeIcon icon={faBoxOpen} className="text-5xl text-slate-300 dark:text-slate-600" />
+              <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">No hay órdenes registradas</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 max-w-md mx-auto">
+                Aún no existen registros en la base de datos para esta sucursal. Las nuevas compras realizadas por clientes en la tienda aparecerán aquí automáticamente.
+              </p>
+            </div>
+          ) : (
+            <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm overflow-hidden">
+              <div className="p-5 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
+                <h3 className="font-bold text-slate-900 dark:text-white text-base">
+                  Listado de Pedidos ({filteredOrders.length})
+                </h3>
+                <span className="text-xs text-slate-400 font-semibold">Mostrando filtro: {statusFilter}</span>
+              </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-slate-50 dark:bg-slate-900/60 text-slate-400 text-xs uppercase font-bold border-b border-slate-200 dark:border-slate-700">
-                  <th className="p-4">N° Orden</th>
-                  <th className="p-4">Cliente</th>
-                  <th className="p-4">Dirección</th>
-                  <th className="p-4">Total</th>
-                  <th className="p-4 text-center">Estado del Pedido</th>
-                  <th className="p-4 text-center">Acciones</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-700/60 text-sm">
-                {filteredOrders.map((ord) => (
-                  <tr key={ord.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-700/30 transition-colors">
-                    <td className="p-4 font-bold font-mono text-amber-600 dark:text-amber-400">{ord.id}</td>
-                    <td className="p-4">
-                      <p className="font-bold text-slate-900 dark:text-white">{ord.clientName}</p>
-                      <p className="text-xs text-slate-400 font-mono">{ord.clientEmail}</p>
-                    </td>
-                    <td className="p-4 text-xs text-slate-600 dark:text-slate-300">
-                      {ord.address}, {ord.city}
-                    </td>
-                    <td className="p-4 font-extrabold text-emerald-600 dark:text-emerald-400 text-base">
-                      ${ord.total.toFixed(2)}
-                    </td>
-                    <td className="p-4 text-center">
-                      <select
-                        value={ord.status}
-                        onChange={(e) => handleUpdateStatus(ord.id, e.target.value as any)}
-                        className={`px-3 py-1.5 rounded-xl font-extrabold text-xs outline-none border cursor-pointer ${
-                          ord.status === 'PENDIENTE'
-                            ? 'bg-amber-50 text-amber-700 border-amber-300 dark:bg-amber-950/60 dark:text-amber-300'
-                            : ord.status === 'EN PREPARACIÓN'
-                            ? 'bg-sky-50 text-sky-700 border-sky-300 dark:bg-sky-950/60 dark:text-sky-300'
-                            : ord.status === 'ENVIADO'
-                            ? 'bg-purple-50 text-purple-700 border-purple-300 dark:bg-purple-950/60 dark:text-purple-300'
-                            : 'bg-emerald-50 text-emerald-700 border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-300'
-                        }`}
-                      >
-                        <option value="PENDIENTE">PENDIENTE</option>
-                        <option value="EN PREPARACIÓN">EN PREPARACIÓN</option>
-                        <option value="ENVIADO">ENVIADO</option>
-                        <option value="ENTREGADO">ENTREGADO</option>
-                      </select>
-                    </td>
-                    <td className="p-4 text-center">
-                      <button
-                        onClick={() => setSelectedOrder(ord)}
-                        className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold transition-colors flex items-center gap-1 mx-auto"
-                      >
-                        <FontAwesomeIcon icon={faEye} />
-                        <span>Detalles</span>
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-slate-50 dark:bg-slate-900/60 text-slate-400 text-xs uppercase font-bold border-b border-slate-200 dark:border-slate-700">
+                      <th className="p-4">N° Orden</th>
+                      <th className="p-4">Cliente</th>
+                      <th className="p-4">Dirección</th>
+                      <th className="p-4">Total</th>
+                      <th className="p-4 text-center">Estado del Pedido</th>
+                      <th className="p-4 text-center">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-700/60 text-sm">
+                    {filteredOrders.map((ord) => (
+                      <tr key={ord.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-700/30 transition-colors">
+                        <td className="p-4 font-bold font-mono text-amber-600 dark:text-amber-400">{ord.id}</td>
+                        <td className="p-4">
+                          <p className="font-bold text-slate-900 dark:text-white">{ord.clientName}</p>
+                          <p className="text-xs text-slate-400 font-mono">{ord.clientEmail}</p>
+                        </td>
+                        <td className="p-4 text-xs text-slate-600 dark:text-slate-300">
+                          {ord.address}, {ord.city}
+                        </td>
+                        <td className="p-4 font-extrabold text-emerald-600 dark:text-emerald-400 text-base">
+                          ${Number(ord.total || 0).toFixed(2)}
+                        </td>
+                        <td className="p-4 text-center">
+                          <select
+                            value={ord.status}
+                            onChange={(e) => handleUpdateStatus(ord.id, e.target.value as any)}
+                            className={`px-3 py-1.5 rounded-xl font-extrabold text-xs outline-none border cursor-pointer ${
+                              ord.status === 'PENDIENTE'
+                                ? 'bg-amber-50 text-amber-700 border-amber-300 dark:bg-amber-950/60 dark:text-amber-300'
+                                : ord.status === 'EN PREPARACIÓN'
+                                ? 'bg-sky-50 text-sky-700 border-sky-300 dark:bg-sky-950/60 dark:text-sky-300'
+                                : ord.status === 'ENVIADO'
+                                ? 'bg-purple-50 text-purple-700 border-purple-300 dark:bg-purple-950/60 dark:text-purple-300'
+                                : 'bg-emerald-50 text-emerald-700 border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-300'
+                            }`}
+                          >
+                            <option value="PENDIENTE">PENDIENTE</option>
+                            <option value="EN PREPARACIÓN">EN PREPARACIÓN</option>
+                            <option value="ENVIADO">ENVIADO</option>
+                            <option value="ENTREGADO">ENTREGADO</option>
+                          </select>
+                        </td>
+                        <td className="p-4 text-center">
+                          <button
+                            onClick={() => setSelectedOrder(ord)}
+                            className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold transition-colors flex items-center gap-1 mx-auto"
+                          >
+                            <FontAwesomeIcon icon={faEye} />
+                            <span>Detalles</span>
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </>
       )}
 
       {/* Modal Detalle de la Orden */}
@@ -282,14 +238,14 @@ export const VendorOrdersPage: React.FC = () => {
             <div className="space-y-2">
               <h4 className="text-xs font-bold uppercase text-slate-400">Productos del Pedido:</h4>
               <div className="divide-y divide-slate-100 dark:divide-slate-700/60 max-h-48 overflow-y-auto pr-1">
-                {selectedOrder.items.map((item) => (
+                {(selectedOrder.items || []).map((item) => (
                   <div key={item.id} className="py-2 flex items-center justify-between text-sm">
                     <div>
                       <p className="font-bold text-slate-900 dark:text-white">{item.productName}</p>
-                      <p className="text-xs text-slate-400">{item.quantity} x ${item.unitPrice.toFixed(2)}</p>
+                      <p className="text-xs text-slate-400">{item.quantity} x ${Number(item.unitPrice || 0).toFixed(2)}</p>
                     </div>
                     <span className="font-extrabold text-emerald-600 dark:text-emerald-400">
-                      ${(item.quantity * item.unitPrice).toFixed(2)}
+                      ${(item.quantity * Number(item.unitPrice || 0)).toFixed(2)}
                     </span>
                   </div>
                 ))}
@@ -299,7 +255,7 @@ export const VendorOrdersPage: React.FC = () => {
             <div className="pt-3 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between">
               <div>
                 <span className="text-xs text-slate-400 block font-semibold">Total a Cobrar</span>
-                <span className="text-xl font-black text-emerald-600 dark:text-emerald-400">${selectedOrder.total.toFixed(2)}</span>
+                <span className="text-xl font-black text-emerald-600 dark:text-emerald-400">${Number(selectedOrder.total || 0).toFixed(2)}</span>
               </div>
 
               <button
